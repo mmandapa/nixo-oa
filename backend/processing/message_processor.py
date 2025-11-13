@@ -116,6 +116,29 @@ class MessageProcessor:
                 "message_ts": message_ts
             })
             
+            # STEP 8: Update ticket title if this is a new message in existing ticket
+            # (Re-generate title with all messages for better context)
+            if ticket.get("message_count", 0) > 1:
+                try:
+                    # Get all messages for this ticket
+                    all_messages = await self.message_repo.get_by_ticket(ticket["id"])
+                    message_texts = [msg.get("text", "") for msg in all_messages]
+                    
+                    # Generate new title with full context
+                    new_title = await self.grouper.title_generator.generate_title(
+                        messages=message_texts,
+                        category=ticket.get("category", "question")
+                    )
+                    
+                    # Update if title changed significantly
+                    if new_title != ticket.get("title"):
+                        await self.ticket_repo.update(ticket["id"], {
+                            "title": new_title
+                        })
+                        logger.info(f"Updated ticket title: {new_title}")
+                except Exception as e:
+                    logger.warning(f"Failed to update ticket title: {e}")
+            
             # Update ticket channel name if needed
             if ticket.get("channel_name") != channel_name and channel_name:
                 await self.ticket_repo.update(ticket["id"], {

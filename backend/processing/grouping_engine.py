@@ -7,6 +7,7 @@ from backend.database.tickets import TicketRepository
 from backend.database.messages import MessageRepository
 from backend.config import settings
 from backend.ai.grouping_classifier import GroupingClassifier
+from backend.ai.title_generator import TitleGenerator
 
 logger = logging.getLogger(__name__)
 
@@ -22,6 +23,7 @@ class GroupingEngine:
         self.ticket_repo = TicketRepository()
         self.message_repo = MessageRepository()
         self.grouping_classifier = GroupingClassifier()
+        self.title_generator = TitleGenerator()
         self.SIMILARITY_THRESHOLD = settings.SIMILARITY_THRESHOLD
         self.TIME_WINDOW_MINUTES = settings.TIME_WINDOW_MINUTES
         self.AI_GROUPING_CONFIDENCE_THRESHOLD = 0.75  # Minimum confidence for AI grouping
@@ -263,11 +265,20 @@ class GroupingEngine:
         channel_id: str,
         first_message_ts: str
     ) -> Dict[str, Any]:
-        """Create new ticket"""
-        # Extract title (first 150 chars, clean)
-        title = message_text[:150].strip()
-        if len(message_text) > 150:
-            title += "..."
+        """Create new ticket with AI-generated title"""
+        # Generate AI title based on message context
+        try:
+            title = await self.title_generator.generate_title(
+                messages=[message_text],
+                category=category
+            )
+            logger.info(f"Generated AI title: {title}")
+        except Exception as e:
+            logger.warning(f"Title generation failed, using fallback: {e}")
+            # Fallback to first message preview
+            title = message_text[:80].strip()
+            if len(message_text) > 80:
+                title += "..."
         
         ticket_data = {
             "title": title,

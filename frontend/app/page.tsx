@@ -13,7 +13,7 @@ import { Archive, X, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 
 export default function Dashboard() {
-  const { tickets, loading, error, archiveAllTickets, archiveTicket, archivedCount, clearArchived, deleteAllTickets, deleteTicket } = useRealtimeTickets()
+  const { tickets, loading, error, archiveAllTickets, archiveTicket, archivedCount, clearArchived, deleteAllTickets, deleteTicket, updateTicketStatus } = useRealtimeTickets()
   const [showArchiveConfirm, setShowArchiveConfirm] = useState(false)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
@@ -54,16 +54,16 @@ export default function Dashboard() {
   const totalTickets = tickets.length
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-indigo-50/20 to-slate-50">
       {/* Header */}
-      <header className="bg-white/80 backdrop-blur-md border-b border-slate-200/60 sticky top-0 z-50 shadow-sm">
+      <header className="glass border-b border-slate-200/60 sticky top-0 z-50 shadow-sm">
         <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-10 py-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
+              <h1 className="text-3xl font-bold gradient-text">
                 FDE Dashboard
               </h1>
-              <p className="mt-1.5 text-sm text-slate-500 font-medium">
+              <p className="mt-1.5 text-sm text-slate-600 font-medium">
                 Real-time customer message tracking
               </p>
             </div>
@@ -179,6 +179,7 @@ export default function Dashboard() {
                 color="red"
                 onArchive={archiveTicket}
                 onDelete={deleteTicket}
+                onStatusChange={updateTicketStatus}
               />
             )}
 
@@ -190,6 +191,7 @@ export default function Dashboard() {
                 color="purple"
                 onArchive={archiveTicket}
                 onDelete={deleteTicket}
+                onStatusChange={updateTicketStatus}
               />
             )}
 
@@ -201,6 +203,7 @@ export default function Dashboard() {
                 color="blue"
                 onArchive={archiveTicket}
                 onDelete={deleteTicket}
+                onStatusChange={updateTicketStatus}
               />
             )}
 
@@ -212,6 +215,7 @@ export default function Dashboard() {
                 color="green"
                 onArchive={archiveTicket}
                 onDelete={deleteTicket}
+                onStatusChange={updateTicketStatus}
               />
             )}
           </div>

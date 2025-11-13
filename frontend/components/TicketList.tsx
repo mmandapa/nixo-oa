@@ -10,9 +10,10 @@ interface TicketListProps {
   color: 'red' | 'purple' | 'blue' | 'green'
   onArchive?: (ticketId: string) => void
   onDelete?: (ticketId: string) => void
+  onStatusChange?: (ticketId: string, newStatus: Ticket['status']) => Promise<void>
 }
 
-export default function TicketList({ title, tickets, color, onArchive, onDelete }: TicketListProps) {
+export default function TicketList({ title, tickets, color, onArchive, onDelete, onStatusChange }: TicketListProps) {
   if (tickets.length === 0) return null
 
   const colorClasses = {
@@ -32,7 +33,13 @@ export default function TicketList({ title, tickets, color, onArchive, onDelete 
       </div>
       <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
         {tickets.map((ticket) => (
-          <TicketCard key={ticket.id} ticket={ticket} onArchive={onArchive} onDelete={onDelete} />
+          <TicketCard 
+            key={ticket.id} 
+            ticket={ticket} 
+            onArchive={onArchive} 
+            onDelete={onDelete}
+            onStatusChange={onStatusChange}
+          />
         ))}
       </div>
     </div>

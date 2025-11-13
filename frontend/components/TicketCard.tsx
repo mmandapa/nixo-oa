@@ -10,19 +10,24 @@
 import { Ticket } from '@/lib/types'
 import MessageBubble from './MessageBubble'
 import CategoryBadge from './CategoryBadge'
+import StatusBadge from './StatusBadge'
+import StatusSelector from './StatusSelector'
+import TicketHistory from './TicketHistory'
 import { formatTimeAgo } from '@/lib/utils'
-import { Hash, Clock, Archive, Trash2 } from 'lucide-react'
+import { Hash, Clock, Archive, Trash2, History } from 'lucide-react'
 import { useState } from 'react'
 
 interface TicketCardProps {
   ticket: Ticket
   onArchive?: (ticketId: string) => void
   onDelete?: (ticketId: string) => void
+  onStatusChange?: (ticketId: string, newStatus: Ticket['status']) => Promise<void>
 }
 
-export default function TicketCard({ ticket, onArchive, onDelete }: TicketCardProps) {
+export default function TicketCard({ ticket, onArchive, onDelete, onStatusChange }: TicketCardProps) {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
+  const [showHistory, setShowHistory] = useState(false)
   
   const sortedMessages = (ticket.messages || []).sort(
     (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
@@ -44,10 +49,17 @@ export default function TicketCard({ ticket, onArchive, onDelete }: TicketCardPr
   }
 
   return (
-    <div className="group bg-white rounded-xl border border-slate-200/80 shadow-sm hover:shadow-lg hover:border-slate-300/60 transition-all duration-300 overflow-hidden backdrop-blur-sm relative">
-      {/* Action Buttons */}
-      {(onArchive || onDelete) && (
-        <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
+    <>
+      <div className="group bg-white rounded-xl border border-slate-200/80 shadow-sm hover:shadow-xl hover:border-indigo-300/60 transition-all duration-300 overflow-hidden backdrop-blur-sm relative card-hover">
+        {/* Action Buttons */}
+        <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 z-10">
+          <button
+            onClick={() => setShowHistory(true)}
+            className="p-1.5 text-indigo-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+            title="View history"
+          >
+            <History className="h-4 w-4" />
+          </button>
           {onArchive && !showDeleteConfirm && (
             <button
               onClick={() => onArchive(ticket.id)}
@@ -86,26 +98,29 @@ export default function TicketCard({ ticket, onArchive, onDelete }: TicketCardPr
             </div>
           )}
         </div>
-      )}
       
       {/* Header */}
-      <div className="px-6 py-5 border-b border-slate-100 bg-gradient-to-br from-slate-50/50 to-white">
+      <div className="px-6 py-5 border-b border-slate-100 bg-gradient-to-br from-indigo-50/30 via-white to-slate-50/50">
         <div className="flex items-start justify-between mb-3">
           <div className="flex-1 min-w-0 pr-8">
-            <div className="flex items-center gap-3 mb-3">
+            <div className="flex items-center gap-3 mb-3 flex-wrap">
               <CategoryBadge category={ticket.category} />
+              {onStatusChange && (
+                <StatusSelector ticket={ticket} onStatusChange={onStatusChange} />
+              )}
+              {!onStatusChange && <StatusBadge status={ticket.status} size="sm" />}
               <span className="text-xs text-slate-500 font-medium">
                 {ticket.message_count} {ticket.message_count === 1 ? 'message' : 'messages'}
               </span>
             </div>
-            <h3 className="text-base font-semibold text-slate-900 leading-snug line-clamp-2">
+            <h3 className="text-lg font-bold text-slate-900 leading-snug line-clamp-2 mb-2">
               {ticket.title}
             </h3>
           </div>
         </div>
 
         {/* Metadata */}
-        <div className="flex items-center gap-5 text-xs text-slate-500">
+        <div className="flex items-center gap-5 text-xs text-slate-500 flex-wrap">
           <div className="flex items-center gap-1.5">
             <Hash className="h-3.5 w-3.5 text-slate-400" />
             <span className="font-medium text-slate-600">
@@ -132,6 +147,12 @@ export default function TicketCard({ ticket, onArchive, onDelete }: TicketCardPr
         )}
       </div>
     </div>
+
+    {/* History Modal */}
+    {showHistory && (
+      <TicketHistory ticketId={ticket.id} onClose={() => setShowHistory(false)} />
+    )}
+    </>
   )
 }
 

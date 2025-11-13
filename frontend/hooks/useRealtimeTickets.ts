@@ -258,6 +258,25 @@ export function useRealtimeTickets() {
   // Filter out archived tickets from display
   const visibleTickets = allTickets.filter(ticket => !archivedTicketIds.has(ticket.id))
 
+  const updateTicketStatus = async (ticketId: string, newStatus: string) => {
+    try {
+      const { error } = await supabase
+        .from('tickets')
+        .update({ status: newStatus })
+        .eq('id', ticketId)
+      
+      if (error) throw error
+      
+      // Update local state
+      setAllTickets(prev => prev.map(t => 
+        t.id === ticketId ? { ...t, status: newStatus as any } : t
+      ))
+    } catch (err) {
+      console.error('Error updating ticket status:', err)
+      throw err
+    }
+  }
+
   return { 
     tickets: visibleTickets, 
     loading, 
@@ -269,7 +288,8 @@ export function useRealtimeTickets() {
     clearArchived,
     archivedCount: archivedTicketIds.size,
     deleteTicket,
-    deleteAllTickets
+    deleteAllTickets,
+    updateTicketStatus
   }
 }
 
