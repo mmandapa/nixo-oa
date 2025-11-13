@@ -65,34 +65,30 @@ class GroupingEngine:
                 return ticket
         
         # PRIORITY 2: AI-based grouping (check recent tickets with AI)
+        # NOTE: Category is ignored - we group purely by relevance
         logger.info(f"🔍 Searching for related tickets using AI in channel {channel_id}")
         ticket = await self._find_by_ai_grouping(
             message_text,
-            channel_id,
-            category
+            channel_id
         )
         if ticket:
-            logger.info(
-                f"✅ Grouped by AI: {ticket['id']} "
-                f"(category: {ticket.get('category')} vs {category})"
-            )
+            logger.info(f"✅ Grouped by AI: {ticket['id']}")
             return ticket
         else:
             logger.info("No AI grouping match found - trying similarity search")
         
         # PRIORITY 3: Semantic similarity (fallback)
+        # NOTE: Category is ignored - we group purely by semantic similarity
         logger.debug(f"Searching for similar tickets using embeddings in channel {channel_id}")
         ticket = await self._find_by_similarity(
             embedding,
-            channel_id,
-            category
+            channel_id
         )
         if ticket:
             similarity_score = ticket.get('similarity', 0)
             logger.info(
                 f"✅ Grouped by similarity: {ticket['id']} "
-                f"(score: {similarity_score:.3f}, "
-                f"category: {ticket.get('category')} vs {category})"
+                f"(score: {similarity_score:.3f})"
             )
             return ticket
         else:
@@ -121,8 +117,7 @@ class GroupingEngine:
     async def _find_by_ai_grouping(
         self,
         message_text: str,
-        channel_id: str,
-        category: str
+        channel_id: str
     ) -> Optional[Dict[str, Any]]:
         """
         Find related tickets using AI-based grouping
@@ -194,17 +189,16 @@ class GroupingEngine:
     async def _find_by_similarity(
         self,
         embedding: List[float],
-        channel_id: str,
-        category: str
+        channel_id: str
     ) -> Optional[Dict[str, Any]]:
         """
         Find similar ticket using vector similarity
         
+        Groups purely by semantic similarity, ignoring category.
         Only searches:
         - Same channel (avoid cross-contamination)
         - Recent tickets (last 30 min)
         - Open tickets only
-        - Groups by similarity regardless of category (if similarity is high enough)
         """
         similar_tickets = await self.ticket_repo.find_similar(
             embedding=embedding,
@@ -224,12 +218,10 @@ class GroupingEngine:
             ticket_id = ticket.get("ticket_id") or ticket.get("id")
             logger.debug(
                 f"Similar ticket found: {ticket_id} "
-                f"(similarity: {similarity:.3f}, category: {ticket.get('category')}, "
-                f"current category: {category})"
+                f"(similarity: {similarity:.3f})"
             )
         
-        # If similarity is very high (>0.85), group regardless of category
-        # Otherwise prefer same category
+        # Return the most similar ticket (category is ignored)
         best_ticket = similar_tickets[0]
         best_similarity = best_ticket.get("similarity", 0)
         
@@ -245,33 +237,7 @@ class GroupingEngine:
             logger.error(f"Could not fetch full ticket data for {best_ticket_id}")
             return None
         
-        if best_similarity > 0.85:
-            # Very high similarity - group regardless of category
-            logger.info(
-                f"Grouping by high similarity ({best_similarity:.3f}) "
-                f"despite category mismatch: {full_ticket.get('category')} vs {category}"
-            )
-            return full_ticket
-        
-        # For moderate similarity, prefer same category
-        for ticket in similar_tickets:
-            if ticket.get("category") == category:
-                ticket_id = ticket.get("ticket_id")
-                if ticket_id:
-                    full_ticket = await self._get_full_ticket(ticket_id)
-                    if full_ticket:
-                        logger.info(
-                            f"Grouping by similarity ({ticket.get('similarity', 0):.3f}) "
-                            f"with matching category: {category}"
-                        )
-                        return full_ticket
-        
-        # If no same category but similarity is still above threshold, group anyway
-        # (Better to group than create duplicates)
-        logger.info(
-            f"Grouping by similarity ({best_similarity:.3f}) "
-            f"despite category difference: {full_ticket.get('category')} vs {category}"
-        )
+        logger.info(f"Grouping by similarity ({best_similarity:.3f})")
         return full_ticket
     
     async def _get_full_ticket(self, ticket_id: str) -> Optional[Dict[str, Any]]:
@@ -292,7 +258,13 @@ class GroupingEngine:
         channel_id: str,
         first_message_ts: str
     ) -> Dict[str, Any]:
-        """Create new ticket with AI-generated title"""
+        """
+        Create new ticket with AI-generated title
+        
+        Note: category parameter is kept for backward compatibility but tickets
+        no longer have a single category - messages have individual categories.
+        We use the first message's category as the ticket's initial category.
+        """
         # Generate AI title based on message context
         try:
             title = await self.title_generator.generate_title(
@@ -309,7 +281,7 @@ class GroupingEngine:
         
         ticket_data = {
             "title": title,
-            "category": category,
+            "category": category,  # Initial category from first message
             "status": "open",
             "channel_id": channel_id,
             "first_message_ts": first_message_ts,

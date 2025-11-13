@@ -43,12 +43,13 @@ export default function Dashboard() {
     )
   }
 
-  // Group tickets by category
-  const groupedTickets = {
-    bug: tickets.filter(t => t.category === 'bug'),
-    feature: tickets.filter(t => t.category === 'feature'),
-    support: tickets.filter(t => t.category === 'support'),
-    question: tickets.filter(t => t.category === 'question'),
+  // Get unique categories present in all tickets (from messages)
+  const getTicketCategories = (ticket: typeof tickets[0]) => {
+    if (!ticket.messages || ticket.messages.length === 0) {
+      return [ticket.category] // Fallback to ticket category if no messages
+    }
+    const categories = new Set(ticket.messages.map((m: any) => m.category))
+    return Array.from(categories) as Array<'bug' | 'feature' | 'support' | 'question'>
   }
 
   const totalTickets = tickets.length
@@ -179,53 +180,15 @@ export default function Dashboard() {
           <EmptyState />
         ) : (
           <div className="space-y-8">
-            {/* Bugs */}
-            {groupedTickets.bug.length > 0 && (
-              <TicketList
-                title="🐛 Bug Reports"
-                tickets={groupedTickets.bug}
-                color="red"
-                onArchive={archiveTicket}
-                onDelete={deleteTicket}
-                onStatusChange={updateTicketStatus}
-              />
-            )}
-
-            {/* Features */}
-            {groupedTickets.feature.length > 0 && (
-              <TicketList
-                title="✨ Feature Requests"
-                tickets={groupedTickets.feature}
-                color="purple"
-                onArchive={archiveTicket}
-                onDelete={deleteTicket}
-                onStatusChange={updateTicketStatus}
-              />
-            )}
-
-            {/* Support */}
-            {groupedTickets.support.length > 0 && (
-              <TicketList
-                title="🆘 Support Questions"
-                tickets={groupedTickets.support}
-                color="blue"
-                onArchive={archiveTicket}
-                onDelete={deleteTicket}
-                onStatusChange={updateTicketStatus}
-              />
-            )}
-
-            {/* Questions */}
-            {groupedTickets.question.length > 0 && (
-              <TicketList
-                title="❓ General Questions"
-                tickets={groupedTickets.question}
-                color="green"
-                onArchive={archiveTicket}
-                onDelete={deleteTicket}
-                onStatusChange={updateTicketStatus}
-              />
-            )}
+            {/* All Tickets - Grouped by Relevance */}
+            <TicketList
+              title="📋 All Tickets"
+              tickets={tickets}
+              color="indigo"
+              onArchive={archiveTicket}
+              onDelete={deleteTicket}
+              onStatusChange={updateTicketStatus}
+            />
           </div>
         )}
       </main>

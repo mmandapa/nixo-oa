@@ -40,6 +40,7 @@ class Message(BaseModel):
     channel_id: str
     thread_ts: Optional[str] = None
     message_ts: str
+    category: str  # Message-level category: 'support', 'bug', 'feature', 'question'
     created_at: datetime
 
 

@@ -104,7 +104,25 @@ class MessageProcessor:
                 self.slack_utils.get_channel_name(channel_id, slack_client)
             )
             
-            # STEP 7: Store message
+            # STEP 7: Store message with its category
+            # Ensure we have a valid category for relevant messages
+            if not classification.category and classification.is_relevant:
+                logger.warning(f"Classification returned relevant but no category for: {message_text[:50]}")
+                # Try to infer category from message text as fallback
+                message_lower = message_text.lower()
+                if any(word in message_lower for word in ["broken", "not working", "error", "bug", "crash", "doesn't work", "failed"]):
+                    message_category = "bug"
+                elif any(word in message_lower for word in ["add", "can we", "please add", "would be great", "need", "feature", "request"]):
+                    message_category = "feature"
+                elif any(word in message_lower for word in ["how do", "how to", "where is", "help", "support"]):
+                    message_category = "support"
+                else:
+                    message_category = "question"
+            else:
+                message_category = classification.category or "question"
+            
+            logger.info(f"Storing message with category: {message_category} (from classification: {classification.category})")
+            
             await self.message_repo.create({
                 "ticket_id": ticket["id"],
                 "slack_message_id": slack_message_id,
@@ -113,7 +131,8 @@ class MessageProcessor:
                 "user_name": user_name or "Unknown",
                 "channel_id": channel_id,
                 "thread_ts": thread_ts,
-                "message_ts": message_ts
+                "message_ts": message_ts,
+                "category": message_category  # Store category at message level
             })
             
             # STEP 8: Update ticket title if this is a new message in existing ticket

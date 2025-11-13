@@ -20,6 +20,23 @@ export default function MessageBubble({ message }: MessageBubbleProps) {
   const colorIndex = message.user_name.charCodeAt(0) % colors.length
   const avatarGradient = colors[colorIndex]
 
+  const categoryColors = {
+    bug: 'bg-rose-100 text-rose-700 border-rose-200',
+    feature: 'bg-violet-100 text-violet-700 border-violet-200',
+    support: 'bg-blue-100 text-blue-700 border-blue-200',
+    question: 'bg-emerald-100 text-emerald-700 border-emerald-200',
+  }
+
+  const categoryLabels = {
+    bug: '🐛 Bug',
+    feature: '✨ Feature',
+    support: '🆘 Support',
+    question: '❓ Question',
+  }
+
+  const categoryClass = categoryColors[message.category] || categoryColors.question
+  const categoryLabel = categoryLabels[message.category] || categoryLabels.question
+
   return (
     <div className="flex gap-3 py-2.5 group/message">
       <div className="flex-shrink-0">
@@ -28,9 +45,12 @@ export default function MessageBubble({ message }: MessageBubbleProps) {
         </div>
       </div>
       <div className="flex-1 min-w-0">
-        <div className="flex items-baseline gap-2.5 mb-1.5">
+        <div className="flex items-baseline gap-2.5 mb-1.5 flex-wrap">
           <span className="font-semibold text-slate-900 text-sm">
             {message.user_name}
+          </span>
+          <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-medium border ${categoryClass}`}>
+            {categoryLabel}
           </span>
           <span className="text-xs text-slate-400 font-medium">
             {formatTimeAgo(message.created_at)}

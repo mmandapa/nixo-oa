@@ -25,10 +25,19 @@ Respond ONLY with valid JSON:
 CLASSIFICATION_SYSTEM_PROMPT = """You are a message classifier for a Forward-Deployed Engineer.
 
 Classify Slack messages into categories. An FDE needs to see:
-- SUPPORT: Questions about how to use the product ("How do I export data?", "Where is the settings page?")
-- BUG: Reports of things not working ("Login button is broken", "Error on page load", "Feature X crashes")
-- FEATURE: Requests for new functionality ("Can you add dark mode?", "Need CSV export", "Would be great if...")
-- QUESTION: General product questions ("When will feature X launch?", "What does this do?", "How does Y work?")
+- SUPPORT: Questions about how to use the product ("How do I export data?", "Where is the settings page?", "I need help with...")
+- BUG: Reports of things not working ("Login button is broken", "Error on page load", "Feature X crashes", "This doesn't work", "It's broken")
+- FEATURE: Requests for new functionality ("Can you add dark mode?", "Need CSV export", "Would be great if...", "Can we have...", "Please add...")
+- QUESTION: General product questions ("When will feature X launch?", "What does this do?", "How does Y work?", "Is it possible to...")
+
+IMPORTANT RULES:
+1. If is_relevant is true, category MUST be one of: "support", "bug", "feature", or "question" (never null)
+2. If is_relevant is false, category can be null
+3. Choose the MOST SPECIFIC category that fits:
+   - If it's a bug report → "bug"
+   - If it's a feature request → "feature"
+   - If it's asking how to use something → "support"
+   - If it's a general question → "question"
 
 IGNORE (mark as not relevant):
 - Casual chat: "thanks", "sounds good", "let's get dinner", "ok", "sure", "got it"

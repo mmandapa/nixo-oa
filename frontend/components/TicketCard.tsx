@@ -2,14 +2,13 @@
  * Individual Ticket Card
  * 
  * Displays:
- * - Ticket title and category
- * - All messages in the ticket
+ * - Ticket title and status
+ * - All messages in the ticket (each with its own category tag)
  * - Channel name and timestamps
  * - User names
  */
 import { Ticket } from '@/lib/types'
 import MessageBubble from './MessageBubble'
-import CategoryBadge from './CategoryBadge'
 import StatusBadge from './StatusBadge'
 import StatusSelector from './StatusSelector'
 import TicketHistory from './TicketHistory'
@@ -104,7 +103,7 @@ export default function TicketCard({ ticket, onArchive, onDelete, onStatusChange
         <div className="flex items-start justify-between mb-3">
           <div className="flex-1 min-w-0 pr-8">
             <div className="flex items-center gap-3 mb-3 flex-wrap">
-              <CategoryBadge category={ticket.category} />
+              {/* Only show status and message count - NO category badges in header */}
               {onStatusChange && (
                 <StatusSelector ticket={ticket} onStatusChange={onStatusChange} />
               )}

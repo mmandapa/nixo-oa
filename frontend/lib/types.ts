@@ -12,6 +12,7 @@ export interface Message {
   channel_id: string
   thread_ts: string | null
   message_ts: string
+  category: 'support' | 'bug' | 'feature' | 'question'  // Message-level category
   created_at: string
 }
 
