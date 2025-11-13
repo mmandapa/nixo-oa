@@ -8,9 +8,11 @@ interface TicketListProps {
   title: string
   tickets: Ticket[]
   color: 'red' | 'purple' | 'blue' | 'green'
+  onArchive?: (ticketId: string) => void
+  onDelete?: (ticketId: string) => void
 }
 
-export default function TicketList({ title, tickets, color }: TicketListProps) {
+export default function TicketList({ title, tickets, color, onArchive, onDelete }: TicketListProps) {
   if (tickets.length === 0) return null
 
   const colorClasses = {
@@ -30,7 +32,7 @@ export default function TicketList({ title, tickets, color }: TicketListProps) {
       </div>
       <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
         {tickets.map((ticket) => (
-          <TicketCard key={ticket.id} ticket={ticket} />
+          <TicketCard key={ticket.id} ticket={ticket} onArchive={onArchive} onDelete={onDelete} />
         ))}
       </div>
     </div>

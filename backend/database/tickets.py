@@ -134,4 +134,39 @@ class TicketRepository:
         except Exception as e:
             logger.error(f"Error getting all tickets: {e}", exc_info=True)
             return []
+    
+    async def find_recent_tickets(
+        self,
+        channel_id: str,
+        hours: int = 24,
+        limit: int = 10
+    ) -> List[Dict[str, Any]]:
+        """
+        Find recent tickets in a channel for AI-based grouping
+        
+        Args:
+            channel_id: Slack channel ID
+            hours: How many hours back to search
+            limit: Maximum number of tickets to return
+            
+        Returns:
+            List of recent ticket dicts
+        """
+        try:
+            from datetime import datetime, timedelta
+            cutoff_time = datetime.utcnow() - timedelta(hours=hours)
+            cutoff_str = cutoff_time.isoformat()
+            
+            result = supabase_client.table("tickets").select("*").eq(
+                "channel_id", channel_id
+            ).eq(
+                "status", "open"
+            ).gte(
+                "created_at", cutoff_str
+            ).order("updated_at", desc=True).limit(limit).execute()
+            
+            return result.data if result.data else []
+        except Exception as e:
+            logger.error(f"Error finding recent tickets: {e}", exc_info=True)
+            return []
 

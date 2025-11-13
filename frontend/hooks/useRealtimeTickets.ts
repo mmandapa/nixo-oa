@@ -11,9 +11,10 @@ import { supabase } from '@/lib/supabase'
 import type { Ticket, Message } from '@/lib/types'
 
 export function useRealtimeTickets() {
-  const [tickets, setTickets] = useState<Ticket[]>([])
+  const [allTickets, setAllTickets] = useState<Ticket[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [archivedTicketIds, setArchivedTicketIds] = useState<Set<string>>(new Set())
 
   const fetchTickets = useCallback(async () => {
     try {
@@ -65,7 +66,7 @@ export function useRealtimeTickets() {
         })
       )
 
-      setTickets(ticketsWithMessages)
+      setAllTickets(ticketsWithMessages)
       setLoading(false)
       setError(null)
     } catch (err) {
@@ -110,6 +111,24 @@ export function useRealtimeTickets() {
           fetchTickets()
         }
       )
+      .on(
+        'postgres_changes',
+        {
+          event: 'DELETE',
+          schema: 'public',
+          table: 'tickets'
+        },
+        (payload) => {
+          console.log('✅ Ticket deleted!', payload.old)
+          // Remove from local state immediately
+          setAllTickets(prev => prev.filter(t => t.id !== payload.old.id))
+          setArchivedTicketIds(prev => {
+            const newSet = new Set(prev)
+            newSet.delete(payload.old.id)
+            return newSet
+          })
+        }
+      )
       .subscribe((status) => {
         console.log('Ticket channel subscription status:', status)
         if (status === 'SUBSCRIBED') {
@@ -150,6 +169,107 @@ export function useRealtimeTickets() {
     }
   }, [fetchTickets])
 
-  return { tickets, loading, error, refetch: fetchTickets }
+  const archiveTicket = (ticketId: string) => {
+    setArchivedTicketIds(prev => new Set([...prev, ticketId]))
+  }
+
+  const archiveAllTickets = () => {
+    const allIds = allTickets.map(t => t.id)
+    setArchivedTicketIds(prev => new Set([...prev, ...allIds]))
+  }
+
+  const restoreTicket = (ticketId: string) => {
+    setArchivedTicketIds(prev => {
+      const newSet = new Set(prev)
+      newSet.delete(ticketId)
+      return newSet
+    })
+  }
+
+  const clearArchived = () => {
+    setArchivedTicketIds(new Set())
+    // Re-fetch to show all tickets again
+    fetchTickets()
+  }
+
+  const deleteTicket = async (ticketId: string) => {
+    try {
+      // Delete ticket (messages will be cascade deleted)
+      const { error } = await supabase
+        .from('tickets')
+        .delete()
+        .eq('id', ticketId)
+      
+      if (error) throw error
+      
+      // Remove from local state
+      setAllTickets(prev => prev.filter(t => t.id !== ticketId))
+      setArchivedTicketIds(prev => {
+        const newSet = new Set(prev)
+        newSet.delete(ticketId)
+        return newSet
+      })
+    } catch (err) {
+      console.error('Error deleting ticket:', err)
+      throw err
+    }
+  }
+
+  const deleteAllTickets = async () => {
+    try {
+      // Get all ticket IDs first
+      const { data: allTickets, error: fetchError } = await supabase
+        .from('tickets')
+        .select('id')
+      
+      if (fetchError) throw fetchError
+      
+      if (!allTickets || allTickets.length === 0) {
+        // Already empty
+        setAllTickets([])
+        setArchivedTicketIds(new Set())
+        return
+      }
+      
+      // Delete all tickets (messages will be cascade deleted)
+      // Delete in batches to avoid timeout
+      const batchSize = 50
+      for (let i = 0; i < allTickets.length; i += batchSize) {
+        const batch = allTickets.slice(i, i + batchSize)
+        const ids = batch.map(t => t.id)
+        
+        const { error } = await supabase
+          .from('tickets')
+          .delete()
+          .in('id', ids)
+        
+        if (error) throw error
+      }
+      
+      // Clear local state
+      setAllTickets([])
+      setArchivedTicketIds(new Set())
+    } catch (err) {
+      console.error('Error deleting all tickets:', err)
+      throw err
+    }
+  }
+
+  // Filter out archived tickets from display
+  const visibleTickets = allTickets.filter(ticket => !archivedTicketIds.has(ticket.id))
+
+  return { 
+    tickets: visibleTickets, 
+    loading, 
+    error, 
+    refetch: fetchTickets,
+    archiveTicket,
+    archiveAllTickets,
+    restoreTicket,
+    clearArchived,
+    archivedCount: archivedTicketIds.size,
+    deleteTicket,
+    deleteAllTickets
+  }
 }
 

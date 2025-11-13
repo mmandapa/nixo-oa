@@ -22,8 +22,8 @@ class Settings(BaseSettings):
     
     # Application Settings
     LOG_LEVEL: str = "INFO"
-    SIMILARITY_THRESHOLD: float = 0.82
-    TIME_WINDOW_MINUTES: int = 30
+    SIMILARITY_THRESHOLD: float = 0.75  # Lowered from 0.82 for better grouping
+    TIME_WINDOW_MINUTES: int = 60  # Increased from 30 to 60 minutes
     
     class Config:
         env_file = ".env"
