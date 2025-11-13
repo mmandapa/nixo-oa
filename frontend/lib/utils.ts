@@ -9,12 +9,12 @@ export function formatTimeAgo(date: string | Date): string {
 
 export function getCategoryColor(category: string): string {
   const colors: Record<string, string> = {
-    bug: 'bg-red-100 text-red-800 border-red-200',
-    feature: 'bg-purple-100 text-purple-800 border-purple-200',
-    support: 'bg-blue-100 text-blue-800 border-blue-200',
-    question: 'bg-green-100 text-green-800 border-green-200',
+    bug: 'bg-rose-50 text-rose-700 border-rose-200/60',
+    feature: 'bg-violet-50 text-violet-700 border-violet-200/60',
+    support: 'bg-blue-50 text-blue-700 border-blue-200/60',
+    question: 'bg-emerald-50 text-emerald-700 border-emerald-200/60',
   }
-  return colors[category] || 'bg-gray-100 text-gray-800 border-gray-200'
+  return colors[category] || 'bg-slate-100 text-slate-700 border-slate-200/60'
 }
 
 export function getCategoryIcon(category: string): string {

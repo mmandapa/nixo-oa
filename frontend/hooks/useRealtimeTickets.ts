@@ -80,6 +80,8 @@ export function useRealtimeTickets() {
     fetchTickets()
 
     // Subscribe to realtime changes
+    console.log('Setting up Realtime subscriptions...')
+    
     const ticketChannel = supabase
       .channel('tickets-changes')
       .on(
@@ -90,7 +92,7 @@ export function useRealtimeTickets() {
           table: 'tickets'
         },
         (payload) => {
-          console.log('New ticket!', payload.new)
+          console.log('✅ New ticket received!', payload.new)
           // Fetch updated list to get messages
           fetchTickets()
         }
@@ -103,12 +105,19 @@ export function useRealtimeTickets() {
           table: 'tickets'
         },
         (payload) => {
-          console.log('Ticket updated!', payload.new)
+          console.log('✅ Ticket updated!', payload.new)
           // Re-fetch to get updated messages
           fetchTickets()
         }
       )
-      .subscribe()
+      .subscribe((status) => {
+        console.log('Ticket channel subscription status:', status)
+        if (status === 'SUBSCRIBED') {
+          console.log('✅ Successfully subscribed to tickets table')
+        } else if (status === 'CHANNEL_ERROR') {
+          console.error('❌ Error subscribing to tickets table')
+        }
+      })
 
     const messageChannel = supabase
       .channel('messages-changes')
@@ -120,12 +129,19 @@ export function useRealtimeTickets() {
           table: 'messages'
         },
         (payload) => {
-          console.log('New message!', payload.new)
+          console.log('✅ New message received!', payload.new)
           // Re-fetch to show new message in ticket
           fetchTickets()
         }
       )
-      .subscribe()
+      .subscribe((status) => {
+        console.log('Message channel subscription status:', status)
+        if (status === 'SUBSCRIBED') {
+          console.log('✅ Successfully subscribed to messages table')
+        } else if (status === 'CHANNEL_ERROR') {
+          console.error('❌ Error subscribing to messages table')
+        }
+      })
 
     // Cleanup
     return () => {

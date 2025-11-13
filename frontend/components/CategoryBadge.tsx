@@ -13,10 +13,10 @@ export default function CategoryBadge({ category }: CategoryBadgeProps) {
 
   return (
     <span
-      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border ${colorClass}`}
+      className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border shadow-sm ${colorClass}`}
     >
-      <span>{icon}</span>
-      <span className="capitalize">{category}</span>
+      <span className="text-xs">{icon}</span>
+      <span className="capitalize tracking-wide">{category}</span>
     </span>
   )
 }

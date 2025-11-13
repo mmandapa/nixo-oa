@@ -38,9 +38,9 @@ class MessageClassifier:
                 message_text = truncated
             
             response = await self.client.chat.completions.create(
-                model="gpt-4",
+                model="gpt-4o-mini",  # Using gpt-4o-mini which supports JSON mode and is cheaper
                 messages=[
-                    {"role": "system", "content": CLASSIFICATION_SYSTEM_PROMPT},
+                    {"role": "system", "content": CLASSIFICATION_SYSTEM_PROMPT + "\n\nYou MUST respond with valid JSON only."},
                     {"role": "user", "content": message_text}
                 ],
                 response_format={"type": "json_object"},

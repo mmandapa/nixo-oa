@@ -23,40 +23,40 @@ export default function TicketCard({ ticket }: TicketCardProps) {
   )
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden">
+    <div className="group bg-white rounded-xl border border-slate-200/80 shadow-sm hover:shadow-lg hover:border-slate-300/60 transition-all duration-300 overflow-hidden backdrop-blur-sm">
       {/* Header */}
-      <div className="px-6 py-4 border-b border-gray-100 bg-gray-50/50">
+      <div className="px-6 py-5 border-b border-slate-100 bg-gradient-to-br from-slate-50/50 to-white">
         <div className="flex items-start justify-between mb-3">
           <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 mb-2">
+            <div className="flex items-center gap-3 mb-3">
               <CategoryBadge category={ticket.category} />
-              <span className="text-xs text-gray-500">
+              <span className="text-xs text-slate-500 font-medium">
                 {ticket.message_count} {ticket.message_count === 1 ? 'message' : 'messages'}
               </span>
             </div>
-            <h3 className="text-lg font-semibold text-gray-900 leading-tight">
+            <h3 className="text-base font-semibold text-slate-900 leading-snug line-clamp-2">
               {ticket.title}
             </h3>
           </div>
         </div>
 
         {/* Metadata */}
-        <div className="flex items-center gap-4 text-xs text-gray-500">
+        <div className="flex items-center gap-5 text-xs text-slate-500">
           <div className="flex items-center gap-1.5">
-            <Hash className="h-3.5 w-3.5" />
-            <span className="font-medium">
+            <Hash className="h-3.5 w-3.5 text-slate-400" />
+            <span className="font-medium text-slate-600">
               {ticket.channel_name || ticket.channel_id}
             </span>
           </div>
           <div className="flex items-center gap-1.5">
-            <Clock className="h-3.5 w-3.5" />
-            <span>{formatTimeAgo(ticket.updated_at)}</span>
+            <Clock className="h-3.5 w-3.5 text-slate-400" />
+            <span className="text-slate-500">{formatTimeAgo(ticket.updated_at)}</span>
           </div>
         </div>
       </div>
 
       {/* Messages */}
-      <div className="px-6 py-4 space-y-1 max-h-96 overflow-y-auto">
+      <div className="px-6 py-5 space-y-3 max-h-96 overflow-y-auto bg-white">
         {sortedMessages.length > 0 ? (
           sortedMessages.map((message) => (
             <MessageBubble key={message.id} message={message} />

@@ -5,14 +5,14 @@ import { MessageSquare } from 'lucide-react'
 
 export default function EmptyState() {
   return (
-    <div className="flex flex-col items-center justify-center py-16 px-4">
-      <div className="h-16 w-16 rounded-full bg-gray-100 flex items-center justify-center mb-4">
-        <MessageSquare className="h-8 w-8 text-gray-400" />
+    <div className="flex flex-col items-center justify-center py-20 px-4">
+      <div className="h-20 w-20 rounded-2xl bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center mb-6 shadow-inner">
+        <MessageSquare className="h-10 w-10 text-slate-400" />
       </div>
-      <h3 className="text-lg font-semibold text-gray-900 mb-2">
+      <h3 className="text-xl font-bold text-slate-900 mb-2">
         No tickets yet
       </h3>
-      <p className="text-sm text-gray-500 text-center max-w-sm">
+      <p className="text-sm text-slate-500 text-center max-w-sm font-medium">
         When customers send relevant messages in Slack, they'll appear here in real-time.
       </p>
     </div>
