@@ -13,7 +13,7 @@ import { Archive, X, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 
 export default function Dashboard() {
-  const { tickets, loading, error, archiveAllTickets, archiveTicket, archivedCount, clearArchived, deleteAllTickets, deleteTicket, updateTicketStatus } = useRealtimeTickets()
+  const { tickets, loading, error, archiveAllTickets, archiveTicket, archivedCount, clearArchived, deleteAllTickets, deleteTicket, updateTicketStatus, hasNewUpdate } = useRealtimeTickets()
   const [showArchiveConfirm, setShowArchiveConfirm] = useState(false)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
@@ -155,9 +155,17 @@ export default function Dashboard() {
                     ) : null}
                   </>
                 )}
-                <div className="flex items-center gap-2 px-4 py-2 bg-emerald-50/80 rounded-full border border-emerald-200/60 shadow-sm">
-                  <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse shadow-sm"></div>
-                  <span className="text-xs font-semibold text-emerald-700 tracking-wide">LIVE</span>
+                <div className="flex items-center gap-3">
+                  {hasNewUpdate && (
+                    <div className="flex items-center gap-2 px-3 py-1.5 bg-blue-50 rounded-lg border border-blue-200 animate-in fade-in slide-in-from-right-2 duration-300">
+                      <div className="h-1.5 w-1.5 rounded-full bg-blue-500 animate-pulse"></div>
+                      <span className="text-xs font-medium text-blue-700">New update</span>
+                    </div>
+                  )}
+                  <div className="flex items-center gap-2 px-4 py-2 bg-emerald-50/80 rounded-full border border-emerald-200/60 shadow-sm">
+                    <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse shadow-sm"></div>
+                    <span className="text-xs font-semibold text-emerald-700 tracking-wide">LIVE</span>
+                  </div>
                 </div>
               </div>
             </div>

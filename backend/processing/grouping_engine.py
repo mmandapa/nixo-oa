@@ -221,8 +221,9 @@ class GroupingEngine:
         # Log similarity scores for debugging
         for ticket in similar_tickets:
             similarity = ticket.get("similarity", 0)
+            ticket_id = ticket.get("ticket_id") or ticket.get("id")
             logger.debug(
-                f"Similar ticket found: {ticket.get('id')} "
+                f"Similar ticket found: {ticket_id} "
                 f"(similarity: {similarity:.3f}, category: {ticket.get('category')}, "
                 f"current category: {category})"
             )
@@ -232,30 +233,56 @@ class GroupingEngine:
         best_ticket = similar_tickets[0]
         best_similarity = best_ticket.get("similarity", 0)
         
+        # Get the ticket_id (RPC returns 'ticket_id', not 'id')
+        best_ticket_id = best_ticket.get("ticket_id")
+        if not best_ticket_id:
+            logger.error("Similar ticket result missing ticket_id")
+            return None
+        
+        # Fetch full ticket data
+        full_ticket = await self._get_full_ticket(best_ticket_id)
+        if not full_ticket:
+            logger.error(f"Could not fetch full ticket data for {best_ticket_id}")
+            return None
+        
         if best_similarity > 0.85:
             # Very high similarity - group regardless of category
             logger.info(
                 f"Grouping by high similarity ({best_similarity:.3f}) "
-                f"despite category mismatch: {best_ticket.get('category')} vs {category}"
+                f"despite category mismatch: {full_ticket.get('category')} vs {category}"
             )
-            return best_ticket
+            return full_ticket
         
         # For moderate similarity, prefer same category
         for ticket in similar_tickets:
             if ticket.get("category") == category:
-                logger.info(
-                    f"Grouping by similarity ({ticket.get('similarity', 0):.3f}) "
-                    f"with matching category: {category}"
-                )
-                return ticket
+                ticket_id = ticket.get("ticket_id")
+                if ticket_id:
+                    full_ticket = await self._get_full_ticket(ticket_id)
+                    if full_ticket:
+                        logger.info(
+                            f"Grouping by similarity ({ticket.get('similarity', 0):.3f}) "
+                            f"with matching category: {category}"
+                        )
+                        return full_ticket
         
         # If no same category but similarity is still above threshold, group anyway
         # (Better to group than create duplicates)
         logger.info(
             f"Grouping by similarity ({best_similarity:.3f}) "
-            f"despite category difference: {best_ticket.get('category')} vs {category}"
+            f"despite category difference: {full_ticket.get('category')} vs {category}"
         )
-        return best_ticket
+        return full_ticket
+    
+    async def _get_full_ticket(self, ticket_id: str) -> Optional[Dict[str, Any]]:
+        """Fetch full ticket data by ID"""
+        try:
+            from backend.database.client import supabase_client
+            result = supabase_client.table("tickets").select("*").eq("id", ticket_id).execute()
+            return result.data[0] if result.data else None
+        except Exception as e:
+            logger.error(f"Error fetching full ticket {ticket_id}: {e}", exc_info=True)
+            return None
     
     async def _create_ticket(
         self,

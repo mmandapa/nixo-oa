@@ -50,7 +50,7 @@ export default function TicketCard({ ticket, onArchive, onDelete, onStatusChange
 
   return (
     <>
-      <div className="group bg-white rounded-xl border border-slate-200/80 shadow-sm hover:shadow-xl hover:border-indigo-300/60 transition-all duration-300 overflow-hidden backdrop-blur-sm relative card-hover">
+      <div className="group bg-white rounded-xl border border-slate-200/80 shadow-sm hover:shadow-xl hover:border-indigo-300/60 transition-all duration-300 overflow-hidden backdrop-blur-sm relative card-hover ticket-enter">
         {/* Action Buttons */}
         <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 z-10">
           <button

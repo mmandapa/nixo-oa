@@ -15,6 +15,7 @@ export function useRealtimeTickets() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [archivedTicketIds, setArchivedTicketIds] = useState<Set<string>>(new Set())
+  const [hasNewUpdate, setHasNewUpdate] = useState(false)
 
   const fetchTickets = useCallback(async () => {
     try {
@@ -92,10 +93,29 @@ export function useRealtimeTickets() {
           schema: 'public',
           table: 'tickets'
         },
-        (payload) => {
+        async (payload) => {
           console.log('✅ New ticket received!', payload.new)
-          // Fetch updated list to get messages
-          fetchTickets()
+          const newTicket = payload.new as any
+          
+          // Fetch messages for the new ticket
+          const { data: messages } = await supabase
+            .from('messages')
+            .select('*')
+            .eq('ticket_id', newTicket.id)
+            .order('created_at', { ascending: true })
+          
+          // Add new ticket to state immediately (no loading)
+          setAllTickets(prev => {
+            // Check if ticket already exists (avoid duplicates)
+            if (prev.some(t => t.id === newTicket.id)) {
+              return prev
+            }
+            return [{ ...newTicket, messages: messages || [] }, ...prev]
+          })
+          
+          // Show notification indicator
+          setHasNewUpdate(true)
+          setTimeout(() => setHasNewUpdate(false), 3000) // Auto-hide after 3s
         }
       )
       .on(
@@ -105,10 +125,27 @@ export function useRealtimeTickets() {
           schema: 'public',
           table: 'tickets'
         },
-        (payload) => {
+        async (payload) => {
           console.log('✅ Ticket updated!', payload.new)
-          // Re-fetch to get updated messages
-          fetchTickets()
+          const updatedTicket = payload.new as any
+          
+          // Fetch messages for the updated ticket
+          const { data: messages } = await supabase
+            .from('messages')
+            .select('*')
+            .eq('ticket_id', updatedTicket.id)
+            .order('created_at', { ascending: true })
+          
+          // Update ticket in state immediately (no loading)
+          // Move updated ticket to the top since it's the most recent
+          setAllTickets(prev => {
+            const otherTickets = prev.filter(t => t.id !== updatedTicket.id)
+            return [{ ...updatedTicket, messages: messages || [] }, ...otherTickets]
+          })
+          
+          // Show notification indicator
+          setHasNewUpdate(true)
+          setTimeout(() => setHasNewUpdate(false), 3000)
         }
       )
       .on(
@@ -147,10 +184,46 @@ export function useRealtimeTickets() {
           schema: 'public',
           table: 'messages'
         },
-        (payload) => {
+        async (payload) => {
           console.log('✅ New message received!', payload.new)
-          // Re-fetch to show new message in ticket
-          fetchTickets()
+          const newMessage = payload.new as Message
+          
+          // Update ticket in state immediately by adding the new message
+          // Move ticket to top since it has new activity
+          setAllTickets(prev => {
+            let updatedTicket: Ticket | null = null
+            const otherTickets = prev.filter(ticket => {
+              if (ticket.id === newMessage.ticket_id) {
+                // Check if message already exists (avoid duplicates)
+                const messageExists = ticket.messages?.some(m => m.id === newMessage.id)
+                if (messageExists) {
+                  return true // Keep in place if duplicate
+                }
+                
+                // Add new message and update message count
+                updatedTicket = {
+                  ...ticket,
+                  messages: [...(ticket.messages || []), newMessage].sort((a, b) => 
+                    new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+                  ),
+                  message_count: (ticket.message_count || 0) + 1,
+                  updated_at: new Date().toISOString()
+                }
+                return false // Remove from current position
+              }
+              return true
+            })
+            
+            // If ticket was updated, move it to the top
+            if (updatedTicket) {
+              return [updatedTicket, ...otherTickets]
+            }
+            return otherTickets
+          })
+          
+          // Show notification indicator
+          setHasNewUpdate(true)
+          setTimeout(() => setHasNewUpdate(false), 3000)
         }
       )
       .subscribe((status) => {
@@ -289,7 +362,8 @@ export function useRealtimeTickets() {
     archivedCount: archivedTicketIds.size,
     deleteTicket,
     deleteAllTickets,
-    updateTicketStatus
+    updateTicketStatus,
+    hasNewUpdate
   }
 }
 
