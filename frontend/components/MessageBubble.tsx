@@ -20,11 +20,11 @@ export default function MessageBubble({ message }: MessageBubbleProps) {
   const colorIndex = message.user_name.charCodeAt(0) % colors.length
   const avatarGradient = colors[colorIndex]
 
-  const categoryColors = {
-    bug: 'bg-rose-100 text-rose-700 border-rose-200',
-    feature: 'bg-violet-100 text-violet-700 border-violet-200',
-    support: 'bg-blue-100 text-blue-700 border-blue-200',
-    question: 'bg-emerald-100 text-emerald-700 border-emerald-200',
+  const categoryStyles = {
+    bug: { background: 'var(--bug-100)', color: '#C81E5A', shadow: 'var(--shadow-pill)' },
+    feature: { background: 'var(--feature-100)', color: '#8B5CF6', shadow: 'var(--shadow-pill)' },
+    support: { background: 'var(--support-100)', color: 'var(--primary-500)', shadow: 'var(--shadow-pill)' },
+    question: { background: 'var(--question-100)', color: 'var(--success-500)', shadow: 'var(--shadow-pill)' },
   }
 
   const categoryLabels = {
@@ -34,29 +34,36 @@ export default function MessageBubble({ message }: MessageBubbleProps) {
     question: '❓ Question',
   }
 
-  const categoryClass = categoryColors[message.category] || categoryColors.question
+  const categoryStyle = categoryStyles[message.category] || categoryStyles.question
   const categoryLabel = categoryLabels[message.category] || categoryLabels.question
 
   return (
     <div className="flex gap-3 py-2.5 group/message">
       <div className="flex-shrink-0">
-        <div className={`h-9 w-9 rounded-full bg-gradient-to-br ${avatarGradient} flex items-center justify-center text-white text-sm font-semibold shadow-sm ring-2 ring-white`}>
+        <div className={`h-10 w-10 rounded-full bg-gradient-to-br ${avatarGradient} flex items-center justify-center text-white text-sm font-semibold shadow-[4px_4px_8px_rgba(0,0,0,0.15),-2px_-2px_4px_rgba(255,255,255,0.3)]`}>
           {message.user_name.charAt(0).toUpperCase()}
         </div>
       </div>
       <div className="flex-1 min-w-0">
         <div className="flex items-baseline gap-2.5 mb-1.5 flex-wrap">
-          <span className="font-semibold text-slate-900 text-sm">
+          <span className="font-semibold text-sm" style={{ color: 'var(--text-900)' }}>
             {message.user_name}
           </span>
-          <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-medium border ${categoryClass}`}>
+          <span 
+            className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium"
+            style={{ 
+              background: categoryStyle.background, 
+              color: categoryStyle.color,
+              boxShadow: categoryStyle.shadow
+            }}
+          >
             {categoryLabel}
           </span>
-          <span className="text-xs text-slate-400 font-medium">
+          <span className="text-xs font-medium" style={{ color: 'var(--text-600)' }}>
             {formatTimeAgo(message.created_at)}
           </span>
         </div>
-        <div className="text-sm text-slate-700 leading-relaxed whitespace-pre-wrap break-words">
+        <div className="text-sm leading-relaxed whitespace-pre-wrap break-words" style={{ color: 'var(--text-900)' }}>
           {message.text}
         </div>
       </div>

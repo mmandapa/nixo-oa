@@ -43,7 +43,7 @@ export default function StatusSelector({ ticket, onStatusChange }: StatusSelecto
         className="flex items-center gap-1.5 hover:opacity-80 transition-opacity disabled:opacity-50"
       >
         <StatusBadge status={ticket.status} size="sm" />
-        <ChevronDown className={`h-3.5 w-3.5 text-slate-400 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+        <ChevronDown className={`h-3.5 w-3.5 transition-transform ${isOpen ? 'rotate-180' : ''}`} style={{ color: 'var(--text-600)' }} />
       </button>
 
       {isOpen && (
@@ -52,19 +52,30 @@ export default function StatusSelector({ ticket, onStatusChange }: StatusSelecto
             className="fixed inset-0 z-10"
             onClick={() => setIsOpen(false)}
           />
-          <div className="absolute top-full left-0 mt-2 z-20 bg-white rounded-lg border border-slate-200 shadow-lg py-1 min-w-[180px]">
+          <div className="absolute top-full left-0 mt-2 z-20 neumorphic-raised rounded-2xl py-2 min-w-[180px]">
             {statuses.map((status) => (
               <button
                 key={status}
                 onClick={() => handleStatusChange(status)}
                 disabled={isChanging}
-                className={`w-full text-left px-3 py-2 text-sm hover:bg-slate-50 transition-colors flex items-center justify-between ${
-                  ticket.status === status ? 'bg-slate-50' : ''
-                }`}
+                className="w-full text-left px-4 py-2 text-sm transition-colors flex items-center justify-between rounded-xl"
+                style={{
+                  background: ticket.status === status ? 'var(--primary-100)' : 'transparent'
+                }}
+                onMouseEnter={(e) => {
+                  if (ticket.status !== status) {
+                    e.currentTarget.style.background = 'var(--primary-100)'
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (ticket.status !== status) {
+                    e.currentTarget.style.background = 'transparent'
+                  }
+                }}
               >
                 <StatusBadge status={status} size="sm" showIcon={false} />
                 {ticket.status === status && (
-                  <Check className="h-4 w-4 text-slate-600" />
+                  <Check className="h-4 w-4" style={{ color: 'var(--primary-500)' }} />
                 )}
               </button>
             ))}

@@ -12,30 +12,35 @@ interface StatusBadgeProps {
   showIcon?: boolean
 }
 
-const statusConfig: Record<Status, { label: string; color: string; icon: any }> = {
+const statusConfig: Record<Status, { label: string; background: string; color: string; icon: any }> = {
   open: {
     label: 'Open',
-    color: 'bg-blue-100 text-blue-700 border-blue-200',
+    background: 'var(--support-100)',
+    color: 'var(--primary-500)',
     icon: AlertCircle
   },
   pending: {
     label: 'Pending',
-    color: 'bg-amber-100 text-amber-700 border-amber-200',
+    background: '#FFF4E6',
+    color: '#F59E0B',
     icon: Clock
   },
   in_progress: {
     label: 'In Progress',
-    color: 'bg-purple-100 text-purple-700 border-purple-200',
+    background: 'var(--feature-100)',
+    color: 'var(--feature-500)',
     icon: PlayCircle
   },
   resolved: {
     label: 'Resolved',
-    color: 'bg-emerald-100 text-emerald-700 border-emerald-200',
+    background: 'var(--question-100)',
+    color: 'var(--success-500)',
     icon: CheckCircle2
   },
   closed: {
     label: 'Closed',
-    color: 'bg-slate-100 text-slate-700 border-slate-200',
+    background: '#F1F3F5',
+    color: 'var(--text-600)',
     icon: XCircle
   }
 }
@@ -58,7 +63,12 @@ export default function StatusBadge({ status, size = 'md', showIcon = true }: St
 
   return (
     <span
-      className={`inline-flex items-center gap-1.5 font-semibold rounded-lg border ${config.color} ${sizeClasses[size]}`}
+      className={`inline-flex items-center gap-1.5 font-semibold rounded-full ${sizeClasses[size]}`}
+      style={{
+        background: config.background,
+        color: config.color,
+        boxShadow: 'var(--shadow-pill)'
+      }}
     >
       {showIcon && <Icon className={iconSizes[size]} />}
       <span>{config.label}</span>

@@ -49,20 +49,26 @@ export default function TicketCard({ ticket, onArchive, onDelete, onStatusChange
 
   return (
     <>
-      <div className="group bg-white rounded-xl border border-slate-200/80 shadow-sm hover:shadow-xl hover:border-indigo-300/60 transition-all duration-300 overflow-hidden backdrop-blur-sm relative card-hover ticket-enter">
+      <div className="group neumorphic-raised overflow-hidden relative card-hover ticket-enter">
         {/* Action Buttons */}
-        <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 z-10">
-          <button
-            onClick={() => setShowHistory(true)}
-            className="p-1.5 text-indigo-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
-            title="View history"
-          >
+        <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-2 z-10">
+            <button
+              onClick={() => setShowHistory(true)}
+              className="p-2 neumorphic-button rounded-full transition-all"
+              style={{ color: 'var(--text-600)' }}
+              onMouseEnter={(e) => e.currentTarget.style.color = 'var(--primary-500)'}
+              onMouseLeave={(e) => e.currentTarget.style.color = 'var(--text-600)'}
+              title="View history"
+            >
             <History className="h-4 w-4" />
           </button>
           {onArchive && !showDeleteConfirm && (
             <button
               onClick={() => onArchive(ticket.id)}
-              className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
+              className="p-2 neumorphic-button rounded-full transition-all"
+              style={{ color: 'var(--text-600)' }}
+              onMouseEnter={(e) => e.currentTarget.style.color = 'var(--text-900)'}
+              onMouseLeave={(e) => e.currentTarget.style.color = 'var(--text-600)'}
               title="Archive ticket"
             >
               <Archive className="h-4 w-4" />
@@ -71,26 +77,35 @@ export default function TicketCard({ ticket, onArchive, onDelete, onStatusChange
           {onDelete && !showDeleteConfirm && (
             <button
               onClick={() => setShowDeleteConfirm(true)}
-              className="p-1.5 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+              className="p-2 neumorphic-button rounded-full transition-all"
+              style={{ color: 'var(--text-600)' }}
+              onMouseEnter={(e) => e.currentTarget.style.color = 'var(--bug-500)'}
+              onMouseLeave={(e) => e.currentTarget.style.color = 'var(--text-600)'}
               title="Delete ticket permanently"
             >
               <Trash2 className="h-4 w-4" />
             </button>
           )}
           {showDeleteConfirm && (
-            <div className="flex items-center gap-1.5 px-2 py-1 bg-red-50 border border-red-200 rounded-lg">
-              <span className="text-xs text-red-700 font-medium">Delete?</span>
+            <div className="flex items-center gap-2 px-3 py-2 neumorphic-inset rounded-2xl">
+              <span className="text-xs font-medium" style={{ color: 'var(--text-900)' }}>Delete?</span>
               <button
                 onClick={handleDelete}
                 disabled={isDeleting}
-                className="px-1.5 py-0.5 text-xs font-semibold text-white bg-red-600 hover:bg-red-700 rounded transition-colors disabled:opacity-50"
+                className="px-3 py-1 text-xs font-semibold text-white rounded-full transition-colors disabled:opacity-50"
+                style={{ background: 'var(--bug-500)', boxShadow: 'var(--shadow-pill)' }}
+                onMouseEnter={(e) => !e.currentTarget.disabled && (e.currentTarget.style.background = '#FF9DB0')}
+                onMouseLeave={(e) => !e.currentTarget.disabled && (e.currentTarget.style.background = 'var(--bug-500)')}
               >
                 {isDeleting ? '...' : 'Yes'}
               </button>
               <button
                 onClick={() => setShowDeleteConfirm(false)}
                 disabled={isDeleting}
-                className="px-1.5 py-0.5 text-xs font-semibold text-slate-600 hover:text-slate-900 rounded transition-colors disabled:opacity-50"
+                className="px-3 py-1 text-xs font-semibold rounded-full transition-colors disabled:opacity-50"
+                style={{ color: 'var(--text-600)' }}
+                onMouseEnter={(e) => !e.currentTarget.disabled && (e.currentTarget.style.color = 'var(--text-900)')}
+                onMouseLeave={(e) => !e.currentTarget.disabled && (e.currentTarget.style.color = 'var(--text-600)')}
               >
                 No
               </button>
@@ -99,7 +114,7 @@ export default function TicketCard({ ticket, onArchive, onDelete, onStatusChange
         </div>
       
       {/* Header */}
-      <div className="px-6 py-5 border-b border-slate-100 bg-gradient-to-br from-indigo-50/30 via-white to-slate-50/50">
+      <div className="px-6 py-5 bg-transparent">
         <div className="flex items-start justify-between mb-3">
           <div className="flex-1 min-w-0 pr-8">
             <div className="flex items-center gap-3 mb-3 flex-wrap">
@@ -108,33 +123,33 @@ export default function TicketCard({ ticket, onArchive, onDelete, onStatusChange
                 <StatusSelector ticket={ticket} onStatusChange={onStatusChange} />
               )}
               {!onStatusChange && <StatusBadge status={ticket.status} size="sm" />}
-              <span className="text-xs text-slate-500 font-medium">
+              <span className="text-xs font-medium px-3 py-1 neumorphic-inset rounded-full" style={{ color: 'var(--text-600)' }}>
                 {ticket.message_count} {ticket.message_count === 1 ? 'message' : 'messages'}
               </span>
             </div>
-            <h3 className="text-lg font-bold text-slate-900 leading-snug line-clamp-2 mb-2">
+            <h3 className="text-lg font-bold leading-snug line-clamp-2 mb-2" style={{ color: 'var(--text-900)' }}>
               {ticket.title}
             </h3>
           </div>
         </div>
 
         {/* Metadata */}
-        <div className="flex items-center gap-5 text-xs text-slate-500 flex-wrap">
-          <div className="flex items-center gap-1.5">
-            <Hash className="h-3.5 w-3.5 text-slate-400" />
-            <span className="font-medium text-slate-600">
+        <div className="flex items-center gap-5 text-xs text-slate-600 flex-wrap">
+          <div className="flex items-center gap-1.5 px-2.5 py-1 neumorphic-inset rounded-full">
+            <Hash className="h-3.5 w-3.5" style={{ color: 'var(--text-600)' }} />
+            <span className="font-medium" style={{ color: 'var(--text-900)' }}>
               {ticket.channel_name || ticket.channel_id}
             </span>
           </div>
-          <div className="flex items-center gap-1.5">
-            <Clock className="h-3.5 w-3.5 text-slate-400" />
-            <span className="text-slate-500">{formatTimeAgo(ticket.updated_at)}</span>
+          <div className="flex items-center gap-1.5 px-2.5 py-1 neumorphic-inset rounded-full">
+            <Clock className="h-3.5 w-3.5" style={{ color: 'var(--text-600)' }} />
+            <span style={{ color: 'var(--text-600)' }}>{formatTimeAgo(ticket.updated_at)}</span>
           </div>
         </div>
       </div>
 
       {/* Messages */}
-      <div className="px-6 py-5 space-y-3 max-h-96 overflow-y-auto bg-white">
+      <div className="px-6 py-5 space-y-3 max-h-96 overflow-y-auto bg-transparent">
         {sortedMessages.length > 0 ? (
           sortedMessages.map((message) => (
             <MessageBubble key={message.id} message={message} />

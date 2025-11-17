@@ -3,22 +3,61 @@
 @tailwind utilities;
 
 :root {
-  --background: #f8fafc;
-  --foreground: #0f172a;
-  --card: #ffffff;
-  --card-border: #e2e8f0;
-  --primary: #6366f1;
-  --primary-hover: #4f46e5;
-  --accent: #8b5cf6;
-  --success: #10b981;
+  /* Nixo Soft-Neumorphism Theme */
+  
+  /* Primary Colors */
+  --primary-500: #3B6DFF;
+  --primary-300: #6C8BFF;
+  --primary-100: #E5ECFF;
+  
+  /* Neutral / Surface Colors */
+  --surface-0: #F3F7FF;
+  --surface-1: #E6EEF7;
+  --card: #F8FAFD;
+  --text-900: #1E2A38;
+  --text-600: #7F8B99;
+  --divider: #DDE3ED;
+  
+  /* Status Colors */
+  --bug-500: #FFB4C2;
+  --bug-100: #FFE8EC;
+  --feature-500: #D3C3FF;
+  --feature-100: #F1EBFF;
+  --support-500: #6C8BFF;
+  --support-100: #E5ECFF;
+  --question-500: #00A47A;
+  --question-100: #E3F7F0;
+  
+  /* Success / Action */
+  --success-500: #00A47A;
+  --success-100: #E3F7F0;
+  
+  /* Neumorphism Shadows */
+  --shadow-card: 10px 10px 25px rgba(0, 0, 0, 0.05), -6px -6px 20px rgba(255, 255, 255, 0.9);
+  --shadow-pill: 4px 4px 10px rgba(0, 0, 0, 0.06), -2px -2px 6px rgba(255, 255, 255, 0.7);
+  --shadow-inset: inset 3px 3px 6px rgba(0, 0, 0, 0.08), inset -3px -3px 6px rgba(255, 255, 255, 0.8);
+  
+  /* Frosted Glass */
+  --blur: 22px;
+  --glass-bg: rgba(255, 255, 255, 0.5);
+  --glass-border: 1px solid rgba(255, 255, 255, 0.35);
+  
+  /* Legacy (for compatibility) */
+  --background: var(--surface-0);
+  --foreground: var(--text-900);
+  --card-border: var(--divider);
+  --primary: var(--primary-500);
+  --primary-hover: var(--primary-300);
+  --accent: var(--feature-500);
+  --success: var(--success-500);
   --warning: #f59e0b;
   --error: #ef4444;
-  --muted: #64748b;
+  --muted: var(--text-600);
 }
 
 body {
-  color: var(--foreground);
-  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  color: var(--text-900);
+  background: linear-gradient(135deg, var(--surface-0) 0%, var(--surface-1) 100%);
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Inter', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
@@ -26,6 +65,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
   font-feature-settings: 'kern' 1;
   text-rendering: optimizeLegibility;
+  letter-spacing: -0.01em;
 }
 
 * {
@@ -52,44 +92,84 @@ html {
 }
 
 ::-webkit-scrollbar-track {
-  background: #f1f5f9;
+  background: var(--surface-1);
   border-radius: 8px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, #cbd5e1 0%, #94a3b8 100%);
+  background: linear-gradient(180deg, var(--divider) 0%, var(--text-600) 100%);
   border-radius: 8px;
-  border: 2px solid #f1f5f9;
+  border: 2px solid var(--surface-1);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(180deg, #94a3b8 0%, #64748b 100%);
+  background: linear-gradient(180deg, var(--text-600) 0%, var(--text-900) 100%);
 }
 
-/* Glass morphism effect */
+/* Nixo Soft-Neumorphism Utilities */
+
+/* Frosted glass effect */
 .glass {
-  background: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--blur));
+  -webkit-backdrop-filter: blur(var(--blur));
+  border: var(--glass-border);
 }
 
-/* Gradient text */
-.gradient-text {
-  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+/* Neumorphic raised card (extruded) - 20-26px radius */
+.neumorphic-raised {
+  background: var(--card);
+  border-radius: 24px;
+  box-shadow: var(--shadow-card);
+  border: none;
 }
 
-/* Card hover effect */
+/* Neumorphic inset (pressed) */
+.neumorphic-inset {
+  background: var(--card);
+  border-radius: 20px;
+  box-shadow: var(--shadow-inset);
+  border: none;
+}
+
+/* Soft button (pill-shaped) */
+.neumorphic-button {
+  background: var(--card);
+  border-radius: 16px;
+  box-shadow: var(--shadow-pill);
+  border: none;
+  transition: all 0.2s ease;
+}
+
+.neumorphic-button:hover {
+  box-shadow: 
+    3px 3px 8px rgba(0, 0, 0, 0.05),
+    -1px -1px 4px rgba(255, 255, 255, 0.8);
+}
+
+.neumorphic-button:active {
+  box-shadow: var(--shadow-inset);
+}
+
+/* Soft card hover effect */
 .card-hover {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .card-hover:hover {
+  box-shadow: 
+    12px 12px 30px rgba(0, 0, 0, 0.06),
+    -8px -8px 25px rgba(255, 255, 255, 0.95);
   transform: translateY(-2px);
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* Nixo gradient text */
+.gradient-text {
+  background: linear-gradient(135deg, var(--primary-500) 0%, var(--primary-300) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 2px 4px rgba(59, 109, 255, 0.15));
 }
 
 /* Smooth fade-in animation for new tickets */

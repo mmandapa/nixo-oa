@@ -16,18 +16,11 @@ interface TicketListProps {
 export default function TicketList({ title, tickets, color, onArchive, onDelete, onStatusChange }: TicketListProps) {
   if (tickets.length === 0) return null
 
-  const colorClasses = {
-    red: 'border-rose-200/60 bg-rose-50/40',
-    purple: 'border-violet-200/60 bg-violet-50/40',
-    blue: 'border-blue-200/60 bg-blue-50/40',
-    green: 'border-emerald-200/60 bg-emerald-50/40',
-  }
-
   return (
     <div className="space-y-5">
-      <div className={`px-5 py-3 rounded-xl border backdrop-blur-sm shadow-sm ${colorClasses[color]}`}>
-        <h2 className="text-lg font-bold text-slate-900">{title}</h2>
-        <p className="text-xs text-slate-600 mt-1 font-medium uppercase tracking-wide">
+      <div className="px-6 py-4 neumorphic-raised rounded-3xl">
+        <h2 className="text-lg font-bold" style={{ color: 'var(--text-900)' }}>{title}</h2>
+        <p className="text-xs mt-1.5 font-medium uppercase tracking-wide" style={{ color: 'var(--text-600)' }}>
           {tickets.length} {tickets.length === 1 ? 'ticket' : 'tickets'}
         </p>
       </div>
