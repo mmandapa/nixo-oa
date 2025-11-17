@@ -118,14 +118,11 @@ export default function TicketCard({ ticket, onArchive, onDelete, onStatusChange
         <div className="flex items-start justify-between mb-3">
           <div className="flex-1 min-w-0 pr-8">
             <div className="flex items-center gap-3 mb-3 flex-wrap">
-              {/* Only show status and message count - NO category badges in header */}
+              {/* Only show status - NO category badges or message count in header */}
               {onStatusChange && (
                 <StatusSelector ticket={ticket} onStatusChange={onStatusChange} />
               )}
               {!onStatusChange && <StatusBadge status={ticket.status} size="sm" />}
-              <span className="text-xs font-medium px-3 py-1 neumorphic-inset rounded-full" style={{ color: 'var(--text-600)' }}>
-                {ticket.message_count} {ticket.message_count === 1 ? 'message' : 'messages'}
-              </span>
             </div>
             <h3 className="text-lg font-bold leading-snug line-clamp-2 mb-2" style={{ color: 'var(--text-900)' }}>
               {ticket.title}
