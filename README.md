@@ -578,7 +578,3 @@ CREATE UNIQUE INDEX ON messages(slack_message_id);
 ## License
 
 MIT
-
-## Support
-
-For issues or questions, contact: priya@withnixo.com
