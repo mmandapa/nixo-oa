@@ -19,80 +19,13 @@ A real-time dashboard for Forward-Deployed Engineers to monitor customer convers
 
 - **Python 3.9+** (for backend)
 - **Node.js 18+** (for frontend)
-- **Slack workspace** (admin access to create apps)
-- **Supabase account** (free tier works)
-- **OpenAI API key** (for GPT-4 classification and embeddings)
-- **No public URL/tunnel needed** (uses Slack Socket Mode for localhost development)
+- **OpenAI API key** (for GPT-4o-mini classification and embeddings)
 
 ---
 
 ## Local Setup
 
-### 1. Database Setup (Supabase)
-
-1. Create a new Supabase project at https://supabase.com
-2. Go to **SQL Editor** → **New Query**
-3. Copy and paste the contents of `database/schema.sql`
-4. Run the query (this creates tables, indexes, and enables Realtime)
-5. Go to **Settings** → **API**
-6. Copy your credentials:
-   - **Project URL** → `SUPABASE_URL`
-   - **`service_role` key** → `SUPABASE_KEY` (backend only)
-   - **`anon` key** → `NEXT_PUBLIC_SUPABASE_ANON_KEY` (frontend)
-
-### 2. Slack Bot Setup
-
-#### Step 1: Create App
-1. Go to https://api.slack.com/apps
-2. Click **"Create New App"** → **"From scratch"**
-3. Name: `FDE Bot` (or any name)
-4. Select your workspace
-5. Click **"Create App"**
-
-#### Step 2: Enable Socket Mode
-1. In left sidebar, click **"Socket Mode"**
-2. Toggle **"Enable Socket Mode"** to ON
-3. Click **"Generate Token"** under "App-Level Tokens"
-4. Name: `FDE Bot Socket Mode`
-5. Add scope: `connections:write`
-6. Click **"Generate"**
-7. **COPY THE TOKEN** (starts with `xapp-`) → This is your `SLACK_APP_TOKEN`
-   - ⚠️ You can only see this once! Save it now.
-
-#### Step 3: Add Bot Scopes
-1. Click **"OAuth & Permissions"** in left sidebar
-2. Scroll to **"Scopes"** → **"Bot Token Scopes"**
-3. Click **"Add an OAuth Scope"** and add:
-   - `channels:history` - Read messages from public channels
-   - `channels:read` - View basic channel info
-   - `users:read` - Get user display names
-   - `groups:history` - Read private channels (if needed)
-   - `groups:read` - View private channel info (if needed)
-
-#### Step 4: Subscribe to Events
-1. Click **"Event Subscriptions"** in left sidebar
-2. Toggle **"Enable Events"** to ON
-3. Under **"Subscribe to bot events"**, click **"Add Bot User Event"**
-4. Add:
-   - `message.channels` - Messages in public channels
-   - `message.groups` - Messages in private channels (if needed)
-
-#### Step 5: Install App
-1. Click **"Install App"** (or go back to "OAuth & Permissions")
-2. Click **"Install to Workspace"**
-3. Review permissions → Click **"Allow"**
-4. **COPY THE BOT USER OAUTH TOKEN** (starts with `xoxb-`) → This is your `SLACK_BOT_TOKEN`
-
-#### Step 6: Get Your User ID
-1. Go to: https://api.slack.com/methods/auth.test
-2. Enter your `SLACK_BOT_TOKEN` (the `xoxb-` one)
-3. Click **"Test Method"**
-4. Look for `"user_id"` in the response → This is your `FDE_SLACK_USER_ID`
-   - **Note**: This might return the bot's user ID. To get YOUR user ID:
-     - In Slack, right-click your profile → "View Profile" → Check URL
-     - Or use: https://api.slack.com/methods/users.identity
-
-### 3. Backend Setup
+### 1. Backend Setup
 
 ```bash
 cd backend
@@ -136,7 +69,7 @@ FDE User ID: U01ABC123
 Starting Slack Socket Mode handler...
 ```
 
-### 4. Frontend Setup
+### 2. Frontend Setup
 
 ```bash
 cd frontend
@@ -161,13 +94,6 @@ npm run dev
 ```
 
 Open http://localhost:3000 to see the dashboard.
-
-### 5. Invite Bot to Channels
-
-In Slack, invite your bot to channels where customers are:
-```
-/invite @YourBotName
-```
 
 ---
 
@@ -493,22 +419,19 @@ CREATE UNIQUE INDEX ON messages(slack_message_id);
 ## Troubleshooting
 
 ### Backend not receiving events
-- Check Socket Mode is enabled in Slack app settings
 - Verify `SLACK_APP_TOKEN` is correct (starts with `xapp-`)
-- Check bot is invited to channels
-- Verify bot has correct Slack scopes
+- Verify `SLACK_BOT_TOKEN` is correct (starts with `xoxb-`)
+- Check backend logs for connection errors
 
 ### Messages not appearing
 - Check OpenAI API key is valid
 - Verify Supabase credentials
 - Check backend logs for errors
-- Ensure bot has correct Slack scopes
 
 ### Frontend not updating
-- Check Supabase Realtime is enabled (run `database/schema.sql`)
 - Verify `NEXT_PUBLIC_SUPABASE_ANON_KEY` is correct
 - Check browser console for errors
-- Verify Supabase Realtime publication is enabled
+- Verify Supabase connection is working
 
 ### Classification issues
 - Review OpenAI API usage/quota
