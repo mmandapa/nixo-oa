@@ -496,8 +496,3 @@ CREATE UNIQUE INDEX ON messages(slack_message_id);
     └── update_status_constraint.sql # Status constraint
 ```
 
----
-
-## License
-
-MIT
